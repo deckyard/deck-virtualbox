@@ -5,6 +5,8 @@
 # virtualbox - white-box tests for the core topic, and the helpers every
 # topic's tests share. Spliced into virtualbox_test.j via include.
 
+include "fixtures/vbox_test.j";
+
 /**
  * Mark a call that should have thrown. The error reaches the test's own
  * `catch`, whose assertions on kind and message then fail.
@@ -17,24 +19,28 @@ func missed(what as string) {
 }
 
 /**
- * A fresh answer directory for the fake `VBoxManage`, made the one it uses.
+ * A fresh answer directory for the fake `VBoxManage`, made the one it uses,
+ * with the fake itself written into it.
  *
  * @return {string} the directory; remove it with `fs.removeAll`
  */
 func fakeDir() {
     def d as string init fs.makeTempDir("", "vbox-test-");
     os.setEnv("FAKE_VBOX_DIR", $d);
+    fs.writeString($d + "/fake-vboxmanage", strings.join(FAKE_VBOXMANAGE, "\n"));
+    fs.chmod($d + "/fake-vboxmanage", 0o755);
     return $d;
 }
 
 /**
- * A host that runs the fake `VBoxManage`, as `open` would return it.
+ * A host that runs the fake `VBoxManage` in the answer directory of the last
+ * `fakeDir`, as `open` would return it.
  *
  * @return {Host} the host
  */
 func fakeHost() {
     return Host{
-        config: withBinary(local(), fs.realpath("testdata/fake-vboxmanage")),
+        config: withBinary(local(), os.getEnv("FAKE_VBOX_DIR") + "/fake-vboxmanage"),
         version: "7.1.4r165100",
         major: 7,
         minor: 1
@@ -56,11 +62,11 @@ func answer(d as string, key as string, ext as string, text as string) {
 /**
  * A recorded `VBoxManage` output.
  *
- * @param name {string} the file in `testdata/vbox/`
+ * @param name {string} its file name, such as `list-vms.out`
  * @return {string} its content
  */
 func fixture(name as string) {
-    return fs.readString("testdata/vbox/" + $name);
+    return strings.join(VBOX_OUTPUT[$name], "\n");
 }
 
 /**

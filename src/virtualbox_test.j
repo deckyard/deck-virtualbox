@@ -5,10 +5,11 @@
 /**
  * White-box tests: jennifer test src/virtualbox_test.j (from the deck root)
  *
- * No test needs VirtualBox. `testdata/fake-vboxmanage` stands in for
- * `VBoxManage`: it records each argument list and answers with the output in
- * `testdata/vbox/`, written in the formats of the VBoxManage 7.0.6 and 7.1.4
- * sources (not recorded from a live host). The topic overlays are fragments
+ * No test needs VirtualBox. A fake `VBoxManage` (POSIX sh) stands in: it
+ * records each argument list and answers with output written in the formats
+ * of the VBoxManage 7.0.6 and 7.1.4 sources (not recorded from a live host).
+ * Both live in `topics/fixtures/vbox_test.j`, inside src/, because jvc runs
+ * the overlays from a copy of src/ alone. The topic overlays are fragments
  * spliced in here, not standalone suites.
  */
 use testing;
