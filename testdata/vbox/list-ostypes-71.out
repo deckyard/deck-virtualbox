@@ -1,0 +1,15 @@
+ID:               Other
+Description:      Other/Unknown
+Family ID:        Other
+Family Desc:      Other/Unknown
+Architecture:     x86
+64 bit:           false
+
+ID:               Ubuntu_arm64
+Description:      Ubuntu (ARM 64-bit)
+Family ID:        Linux
+Family Desc:      Linux
+OS Subtype:       Ubuntu
+Architecture:     ARM
+64 bit:           true
+

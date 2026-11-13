@@ -1,0 +1,21 @@
+Host Information:
+
+Host time: 2026-11-13T09:12:44.123000000Z
+Processor online count: 16
+Processor count: 16
+Processor online core count: 8
+Processor core count: 8
+Processor supports HW virtualization: yes
+Processor supports PAE: yes
+Processor supports long mode: yes
+Processor supports nested paging: yes
+Processor supports unrestricted guest: yes
+Processor supports nested HW virtualization: yes
+Processor#0 speed: 3800 MHz
+Processor#0 description: AMD Ryzen 7 5800X 8-Core Processor
+Processor#1 speed: 3800 MHz
+Processor#1 description: AMD Ryzen 7 5800X 8-Core Processor
+Memory size: 64217 MByte
+Memory available: 41003 MByte
+Operating system: Linux
+Operating system version: 6.8.0-45-generic

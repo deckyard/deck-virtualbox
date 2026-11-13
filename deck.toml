@@ -1,0 +1,20 @@
+[package]
+name = "@deckyard/virtualbox"
+version = "0.1.0"
+description = "Oracle VirtualBox 7 through VBoxManage: inventories, VM lifecycle, power, snapshots, clones, OVA import and export, guest control"
+license = "LGPL-3.0-only"
+authors = ["mplx <mplx@jennifer-lang.dev>"]
+# The deck runs VirtualBox's `VBoxManage` program (or `ssh` for a remote host),
+# so it needs `exec`. No `net`: the SOAP web service is the separate
+# virtualboxws deck. No `sql`.
+capabilities = ["exec"]
+keywords = ["virtualbox", "vboxmanage", "vm", "virtualization", "snapshot", "ova", "hypervisor"]
+
+[package.urls]
+deck = "https://raw.githubusercontent.com/deckyard/deck-virtualbox/main/deck.toml"
+homepage = "https://github.com/deckyard/deck-virtualbox"
+manual = "https://deckyard.github.io/deck-virtualbox/"
+
+# Only the default binary: `jennifer-tiny` has no `exec` capability.
+[engines]
+jennifer = ">=0.26.0"

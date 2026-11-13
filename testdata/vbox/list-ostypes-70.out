@@ -1,0 +1,12 @@
+ID:          Other
+Description: Other/Unknown
+Family ID:   Other
+Family Desc: Other/Unknown
+64 bit:      false
+
+ID:          Ubuntu_64
+Description: Ubuntu (64-bit)
+Family ID:   Linux
+Family Desc: Linux
+64 bit:      true
+
