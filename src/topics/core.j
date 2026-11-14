@@ -80,13 +80,51 @@ export def struct Host {
 };
 
 /**
+ * A failed call. Every error of kind `"virtualbox"` is one, so its fields are
+ * safe to read once the kind matches. (A `VBoxManage` output over the caps is
+ * kind `"limit"`; a cancelled task stays kind `"cancelled"`.)
+ *
+ * @field kind {string} always `"virtualbox"`
+ * @field message {string} `virtualbox: ` and what went wrong
+ * @field reason {string} `"exit"` (`VBoxManage` ran and failed), `"timeout"` (it did not answer within the deadline), or `""` for any other failure (a check before the call, a program that cannot run, unreadable output)
+ * @field code {string} the `VBOX_E_*`, `E_*` or `NS_ERROR_*` code `VBoxManage` named, such as `VBOX_E_OBJECT_NOT_FOUND`; `""` when it named none
+ * @field exitCode {int} `VBoxManage`'s exit code when `reason` is `"exit"`; 0 otherwise
+ */
+export def struct VirtualboxError {
+    kind as string,
+    message as string,
+    reason as string,
+    code as string,
+    exitCode as int
+};
+
+/**
  * Throw a virtualbox error.
  *
  * @param message {string} what went wrong, without the `virtualbox: ` prefix
- * @throws {Error} kind "virtualbox", always
+ * @throws {VirtualboxError} kind "virtualbox", always
  */
 func fail(message as string) {
-    throw Error{kind: "virtualbox", message: "virtualbox: " + $message};
+    failWith($message, "", "", 0);
+}
+
+/**
+ * Throw a virtualbox error with its reason, code and exit code.
+ *
+ * @param message {string} what went wrong, without the `virtualbox: ` prefix
+ * @param reason {string} `"exit"`, `"timeout"` or `""`
+ * @param code {string} the `VBoxManage` error code, `""` for none
+ * @param exitCode {int} the exit code, 0 for none
+ * @throws {VirtualboxError} kind "virtualbox", always
+ */
+func failWith(message as string, reason as string, code as string, exitCode as int) {
+    throw VirtualboxError{
+        kind: "virtualbox",
+        message: "virtualbox: " + $message,
+        reason: $reason,
+        code: $code,
+        exitCode: $exitCode
+    };
 }
 
 /**
@@ -146,7 +184,7 @@ export func local() {
  *
  * @param prefix {list of string} the command, such as `["ssh", "-o", "BatchMode=yes", "admin@host"]`
  * @return {Config} the configuration
- * @throws {Error} kind "virtualbox" if the prefix is empty or an element is empty or holds a control character
+ * @throws {VirtualboxError} kind "virtualbox" if the prefix is empty or an element is empty or holds a control character
  * @example
  *   def c as virtualbox.Config init virtualbox.remote(["ssh", "-o", "BatchMode=yes", "admin@vmhost"]);
  */
@@ -171,7 +209,7 @@ export func remote(prefix as list of string) {
  * @param c {Config} the configuration
  * @param binary {string} the program: a name looked up in `PATH`, or a path
  * @return {Config} the changed copy
- * @throws {Error} kind "virtualbox" if it is empty, starts with `-`, holds `=` or a control character
+ * @throws {VirtualboxError} kind "virtualbox" if it is empty, starts with `-`, holds `=` or a control character
  */
 export func withBinary(c as Config, binary as string) {
     checkPath($binary, "the VBoxManage program");
@@ -190,7 +228,7 @@ export func withBinary(c as Config, binary as string) {
  * @param c {Config} the configuration
  * @param ms {int} milliseconds, 1 to 86400000
  * @return {Config} the changed copy
- * @throws {Error} kind "virtualbox" if it is out of range
+ * @throws {VirtualboxError} kind "virtualbox" if it is out of range
  */
 export func withTimeout(c as Config, ms as int) {
     checkRange($ms, 1, 86400000, "the timeout");
@@ -206,7 +244,7 @@ export func withTimeout(c as Config, ms as int) {
  * @param c {Config} the configuration
  * @param ms {int} milliseconds, 1 to 86400000
  * @return {Config} the changed copy
- * @throws {Error} kind "virtualbox" if it is out of range
+ * @throws {VirtualboxError} kind "virtualbox" if it is out of range
  */
 export func withLongTimeout(c as Config, ms as int) {
     checkRange($ms, 1, 86400000, "the long timeout");
@@ -221,7 +259,7 @@ export func withLongTimeout(c as Config, ms as int) {
  *
  * @param c {Config} the configuration
  * @return {Host} the host, for every other call
- * @throws {Error} kind "virtualbox" if `VBoxManage` cannot run, fails, prints no version or is older than VirtualBox 7
+ * @throws {VirtualboxError} kind "virtualbox" if `VBoxManage` cannot run, fails, prints no version or is older than VirtualBox 7
  * @example
  *   def vb as virtualbox.Host init virtualbox.open(virtualbox.local());
  *   io.printf("VirtualBox %s\n", $vb.version);
@@ -247,7 +285,7 @@ export func open(c as Config) {
  * @param c {Config} the configuration
  * @param out {string} what `VBoxManage --version` printed
  * @return {Host} the host
- * @throws {Error} kind "virtualbox" if no line holds a version
+ * @throws {VirtualboxError} kind "virtualbox" if no line holds a version
  */
 func hostFrom(c as Config, out as string) {
     def h as Host init Host{config: $c, version: "", major: 0, minor: 0};
@@ -273,7 +311,7 @@ func hostFrom(c as Config, out as string) {
  *
  * @param value {string} the text
  * @param what {string} what it is, for the message
- * @throws {Error} kind "virtualbox" if it is unusable
+ * @throws {VirtualboxError} kind "virtualbox" if it is unusable
  */
 func checkText(value as string, what as string) {
     if ($value == "") {
@@ -293,7 +331,7 @@ func checkText(value as string, what as string) {
  *
  * @param path {string} the path
  * @param what {string} what it is, for the message
- * @throws {Error} kind "virtualbox" if it is unusable
+ * @throws {VirtualboxError} kind "virtualbox" if it is unusable
  */
 func checkPath(path as string, what as string) {
     checkText($path, $what);
@@ -311,7 +349,7 @@ func checkPath(path as string, what as string) {
  *
  * @param name {string} the name
  * @param what {string} what it is, for the message
- * @throws {Error} kind "virtualbox" if it is unusable
+ * @throws {VirtualboxError} kind "virtualbox" if it is unusable
  */
 func checkName(name as string, what as string) {
     checkText($name, $what);
@@ -327,7 +365,7 @@ func checkName(name as string, what as string) {
  * Refuse a machine reference: a name or a UUID, checked as a name.
  *
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if it is unusable
+ * @throws {VirtualboxError} kind "virtualbox" if it is unusable
  */
 func checkVm(vm as string) {
     checkName($vm, "the machine");
@@ -339,7 +377,7 @@ func checkVm(vm as string) {
  * @param value {string} the value
  * @param choices {list of string} the accepted values
  * @param what {string} what it is, for the message
- * @throws {Error} kind "virtualbox" if it is not one of them
+ * @throws {VirtualboxError} kind "virtualbox" if it is not one of them
  */
 func checkChoice(value as string, choices as list of string, what as string) {
     if (not lists.contains($choices, $value)) {
@@ -354,7 +392,7 @@ func checkChoice(value as string, choices as list of string, what as string) {
  * @param low {int} the smallest accepted
  * @param high {int} the largest accepted
  * @param what {string} what it is, for the message
- * @throws {Error} kind "virtualbox" if it is out of range
+ * @throws {VirtualboxError} kind "virtualbox" if it is out of range
  */
 func checkRange(n as int, low as int, high as int, what as string) {
     if ($n < $low or $n > $high) {
@@ -419,7 +457,7 @@ func shellQuoted(s as string) {
  * @param timeoutMs {int} the deadline
  * @param what {string} the operation, for error messages
  * @return {os.Result} the exit code and output
- * @throws {Error} kind "virtualbox" if an argument cannot go through the prefix, it cannot start, runs too long or prints something that is not UTF-8
+ * @throws {VirtualboxError} kind "virtualbox" if an argument cannot go through the prefix, it cannot start, runs too long or prints something that is not UTF-8
  */
 func execute(c as Config, args as list of string, timeoutMs as int, what as string) {
     if (len($c.prefix) > 0) {
@@ -441,8 +479,12 @@ func execute(c as Config, args as list of string, timeoutMs as int, what as stri
         os.kill($p);
         def late as string init $what + ": no answer after " + convert.toString($timeoutMs) + " ms";
         if (not finished($p, STOP_GRACE_MS)) {
-            fail($late + "; still running " + convert.toString(STOP_GRACE_MS) +
-                " ms after SIGTERM, left running as pid " + convert.toString($p.pid));
+            failWith(
+                $late + "; still running " + convert.toString(STOP_GRACE_MS) +
+                    " ms after SIGTERM, left running as pid " + convert.toString($p.pid),
+                "timeout",
+                "",
+                0);
         }
         try {
             os.wait($p);
@@ -450,7 +492,7 @@ func execute(c as Config, args as list of string, timeoutMs as int, what as stri
             $late = $late + " (its output was unreadable)";
         }
         os.release($p);
-        fail($late + ", stopped");
+        failWith($late + ", stopped", "timeout", "", 0);
     }
     def r as os.Result;
     try {
@@ -498,7 +540,7 @@ func finished(p as os.Process, ms as int) {
  * @param args {list of string} the arguments after the program
  * @param what {string} the operation, for error messages
  * @return {string} its standard output
- * @throws {Error} kind "virtualbox" if it fails
+ * @throws {VirtualboxError} kind "virtualbox" if it fails
  */
 func call(h as Host, args as list of string, what as string) {
     return checked(execute($h.config, $args, $h.config.timeoutMs, $what), $what);
@@ -512,7 +554,7 @@ func call(h as Host, args as list of string, what as string) {
  * @param args {list of string} the arguments after the program
  * @param what {string} the operation, for error messages
  * @return {string} its standard output
- * @throws {Error} kind "virtualbox" if it fails
+ * @throws {VirtualboxError} kind "virtualbox" if it fails
  */
 func callLong(h as Host, args as list of string, what as string) {
     return checked(execute($h.config, $args, $h.config.longTimeoutMs, $what), $what);
@@ -525,17 +567,28 @@ func callLong(h as Host, args as list of string, what as string) {
  * @param r {os.Result} the result
  * @param what {string} the operation, for the message
  * @return {string} its standard output
- * @throws {Error} kind "virtualbox" if the exit code is not 0 or it printed more
+ * @throws {VirtualboxError} kind "virtualbox" if the exit code is not 0
+ * @throws {Error} kind "limit" if it printed more
  */
 func checked(r as os.Result, what as string) {
     if ($r.exitCode != 0) {
         failed($what, $r);
     }
+    # a reached cap is kind "limit", not "virtualbox"
     if (len($r.stdout) > MAX_OUTPUT) {
-        fail($what + ": printed more than " + convert.toString(MAX_OUTPUT) + " characters");
+        throw Error{
+            kind: "limit",
+            message: "virtualbox: " + $what + ": printed more than " +
+                convert.toString(MAX_OUTPUT) +
+                " characters"
+        };
     }
     if (strings.count($r.stdout, "\n") > MAX_LINES) {
-        fail($what + ": printed more than " + convert.toString(MAX_LINES) + " lines");
+        throw Error{
+            kind: "limit",
+            message: "virtualbox: " + $what + ": printed more than " + convert.toString(MAX_LINES) +
+                " lines"
+        };
     }
     return $r.stdout;
 }
@@ -548,7 +601,7 @@ func checked(r as os.Result, what as string) {
  *
  * @param what {string} the operation
  * @param r {os.Result} the result
- * @throws {Error} kind "virtualbox", always
+ * @throws {VirtualboxError} kind "virtualbox", always, with `reason` `"exit"`
  */
 func failed(what as string, r as os.Result) {
     def explained as list of string init explain($r.stderr);
@@ -556,7 +609,7 @@ func failed(what as string, r as os.Result) {
     if ($explained[1] != "") {
         $tail = $explained[1] + ", " + $tail;
     }
-    fail($what + ": " + $explained[0] + " (" + $tail + ")");
+    failWith($what + ": " + $explained[0] + " (" + $tail + ")", "exit", $explained[1], $r.exitCode);
 }
 
 /**
@@ -608,30 +661,23 @@ func explain(stderr as string) {
  * The `VBOX_E_*`, `E_*` or `NS_ERROR_*` code of a virtualbox error (Linux
  * and macOS hosts report generic failures as `NS_ERROR_FAILURE`), to tell a missing
  * machine (`VBOX_E_OBJECT_NOT_FOUND`) from a locked one
- * (`VBOX_E_INVALID_OBJECT_STATE`) and the like.
+ * (`VBOX_E_INVALID_OBJECT_STATE`) and the like. It is the error's `code`
+ * field; kept for code written before `VirtualboxError`. The parameter is a
+ * `VirtualboxError`, so match the kind before passing a caught error.
  *
- * @param e {Error} a caught error
- * @return {string} the code, `""` if the error is not a virtualbox error from `VBoxManage` or names none
+ * @param e {VirtualboxError} a caught error of kind "virtualbox"
+ * @return {string} the code, `""` if `VBoxManage` named none
  * @example
  *   try {
  *       virtualbox.info($vb, "web");
  *   } catch (e) {
- *       if (virtualbox.errorCode($e) == "VBOX_E_OBJECT_NOT_FOUND") {
+ *       if ($e.kind == "virtualbox" and $e.code == "VBOX_E_OBJECT_NOT_FOUND") {
  *           io.printf("no such machine\n");
  *       }
  *   }
  */
-export func errorCode(e as Error) {
-    if ($e.kind != "virtualbox") {
-        return "";
-    }
-    def m as regex.Match init regex.find(
-        '\(((VBOX_E|E|NS_ERROR)_[A-Z0-9_]+), exit -?[0-9]+\)$',
-        $e.message);
-    if ($m.start < 0) {
-        return "";
-    }
-    return $m.groups[0];
+export func errorCode(e as VirtualboxError) {
+    return $e.code;
 }
 
 /**
@@ -642,7 +688,7 @@ export func errorCode(e as Error) {
  * @param h {Host} the host
  * @param args {list of string} the arguments after `VBoxManage`, such as `["list", "dhcpservers"]`
  * @return {string} its standard output
- * @throws {Error} kind "virtualbox" if an argument is empty, too long or holds a control character, or the command fails
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is empty, too long or holds a control character, or the command fails
  * @example
  *   io.printf("%s", virtualbox.run($vb, ["list", "dhcpservers"]));
  */

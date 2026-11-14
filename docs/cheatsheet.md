@@ -10,7 +10,9 @@ Every export of `@deckyard/virtualbox`. Guides are listed in
 import "@deckyard/virtualbox/" as virtualbox;
 ```
 
-Every failure is `Error{kind: "virtualbox"}`. A `c` argument is a `Config`,
+Every failure is a `VirtualboxError` (kind `"virtualbox"`), except a
+`VBoxManage` output over the caps (kind `"limit"`) and a cancelled task (kind
+`"cancelled"`). A `c` argument is a `Config`,
 an `h` a `Host`, a `vm` a machine's name or UUID.
 
 ## Constants
@@ -32,7 +34,7 @@ an `h` a `Host`, a `vm` a machine's name or UUID.
 | `virtualbox.withLongTimeout(c, ms)` | `Config` | the deadline of import, export, clone, snapshots and guest copies |
 | `virtualbox.open(c)` | `Host` | run `VBoxManage --version`; refuse VirtualBox older than 7 |
 | `virtualbox.run(h, args)` | `string` | any other subcommand, arguments as given; its output |
-| `virtualbox.errorCode(e)` | `string` | the `VBOX_E_*` / `E_*` / `NS_ERROR_*` code of a caught error, `""` if none |
+| `virtualbox.errorCode(e)` | `string` | a `VirtualboxError`'s `code`: the `VBOX_E_*` / `E_*` / `NS_ERROR_*` code, `""` if none (read `$e.code` directly) |
 
 ## Inventory
 
@@ -296,3 +298,15 @@ an `h` a `Host`, a `vm` a machine's name or UUID.
 | `exitCode as int` | its exit code when `exited`: 0 to 93, -1 for 94 or more; -1 otherwise |
 | `stdout as string` | its standard output |
 | `stderr as string` | its error output |
+
+### `VirtualboxError`
+
+Every error of kind `"virtualbox"`.
+
+| Field | Meaning |
+|---|---|
+| `kind as string` | always `"virtualbox"` |
+| `message as string` | `virtualbox: ` and what went wrong |
+| `reason as string` | `"exit"` (`VBoxManage` failed), `"timeout"` (no answer within the deadline), `""` otherwise |
+| `code as string` | the `VBOX_E_*` / `E_*` / `NS_ERROR_*` code `VBoxManage` named, `""` if none |
+| `exitCode as int` | `VBoxManage`'s exit code when `reason` is `"exit"`, 0 otherwise |

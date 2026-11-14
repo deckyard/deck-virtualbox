@@ -165,7 +165,7 @@ export def struct VmInfo {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @return {VmInfo} the details
- * @throws {Error} kind "virtualbox" if the name is unusable or the machine is not found (`VBOX_E_OBJECT_NOT_FOUND`)
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or the machine is not found (`VBOX_E_OBJECT_NOT_FOUND`)
  * @example
  *   def i as virtualbox.VmInfo init virtualbox.info($vb, "web");
  *   io.printf("%s: %s, %d MiB\n", $i.name, $i.state, $i.memoryMb);
@@ -181,7 +181,7 @@ export func info(h as Host, vm as string) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @return {string} the state
- * @throws {Error} kind "virtualbox" as `info`
+ * @throws {VirtualboxError} kind "virtualbox" as `info`
  */
 export func state(h as Host, vm as string) {
     checkVm($vm);
@@ -396,7 +396,7 @@ func foldersFrom(m as map of string to string) {
  * @param name {string} the new machine's name
  * @param osType {string} its guest OS type id, from `osTypes` (such as `Ubuntu_64`)
  * @return {string} its UUID
- * @throws {Error} kind "virtualbox" if the name or type is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the name or type is unusable or VirtualBox refuses
  * @example
  *   def id as string init virtualbox.create($vb, "web", "Ubuntu_64");
  */
@@ -412,7 +412,7 @@ export func create(h as Host, name as string, osType as string) {
  * @param osType {string} its guest OS type id
  * @param baseFolder {string} the folder the machine's own folder goes in
  * @return {string} its UUID
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func createIn(h as Host, name as string, osType as string, baseFolder as string) {
     checkPath($baseFolder, "the base folder");
@@ -427,7 +427,7 @@ export func createIn(h as Host, name as string, osType as string, baseFolder as 
  * @param osType {string} its guest OS type id
  * @param baseFolder {string} the base folder, `""` for VirtualBox's default
  * @return {string} the UUID
- * @throws {Error} kind "virtualbox" if an argument is unusable, VirtualBox refuses or prints no UUID
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable, VirtualBox refuses or prints no UUID
  */
 func createVm(h as Host, name as string, osType as string, baseFolder as string) {
     checkName($name, "the machine name");
@@ -455,7 +455,7 @@ func createVm(h as Host, name as string, osType as string, baseFolder as string)
  * @param out {string} its output
  * @param what {string} the command, for the message
  * @return {string} the UUID
- * @throws {Error} kind "virtualbox" if it printed none
+ * @throws {VirtualboxError} kind "virtualbox" if it printed none
  */
 func printedUuid(out as string, what as string) {
     def m as regex.Match init regex.find(
@@ -472,7 +472,7 @@ func printedUuid(out as string, what as string) {
  *
  * @param h {Host} the host
  * @param settingsFile {string} the machine's `.vbox` file
- * @throws {Error} kind "virtualbox" if the path is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the path is unusable or VirtualBox refuses
  */
 export func register(h as Host, settingsFile as string) {
     checkPath($settingsFile, "the settings file");
@@ -484,7 +484,7 @@ export func register(h as Host, settingsFile as string) {
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or VirtualBox refuses
  */
 export func unregister(h as Host, vm as string) {
     checkVm($vm);
@@ -497,7 +497,7 @@ export func unregister(h as Host, vm as string) {
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or VirtualBox refuses
  */
 export func delete(h as Host, vm as string) {
     checkVm($vm);
@@ -510,7 +510,7 @@ export func delete(h as Host, vm as string) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param args {list of string} the options after the machine
- * @throws {Error} kind "virtualbox" if VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if VirtualBox refuses
  */
 func modify(h as Host, vm as string, args as list of string) {
     checkVm($vm);
@@ -527,7 +527,7 @@ func modify(h as Host, vm as string, args as list of string) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param cpus {int} processors, 1 to 64
- * @throws {Error} kind "virtualbox" if the count is out of range or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the count is out of range or VirtualBox refuses
  */
 export func setCpus(h as Host, vm as string, cpus as int) {
     checkRange($cpus, 1, 64, "the processor count");
@@ -540,7 +540,7 @@ export func setCpus(h as Host, vm as string, cpus as int) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param memoryMb {int} MiB, 4 to 2097152
- * @throws {Error} kind "virtualbox" if the size is out of range or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the size is out of range or VirtualBox refuses
  */
 export func setMemory(h as Host, vm as string, memoryMb as int) {
     checkRange($memoryMb, 4, 2097152, "the memory size");
@@ -553,7 +553,7 @@ export func setMemory(h as Host, vm as string, memoryMb as int) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param firmware {string} `bios`, `efi`, `efi32` or `efi64`
- * @throws {Error} kind "virtualbox" if the firmware is not one of these or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the firmware is not one of these or VirtualBox refuses
  */
 export func setFirmware(h as Host, vm as string, firmware as string) {
     checkChoice($firmware, FIRMWARE, "the firmware");
@@ -568,7 +568,7 @@ export func setFirmware(h as Host, vm as string, firmware as string) {
  * @param index {int} the adapter's slot, 1 to 36 (more than 8 needs the ICH9 chipset)
  * @param attachment {string} `nat`, `bridged`, `hostonly`, `intnet`, `natnetwork`, `null` (a cable to nowhere) or `none` (no adapter)
  * @param network {string} the host interface for `bridged` and `hostonly`, the network's name for `intnet` and `natnetwork`; `""` for the others
- * @throws {Error} kind "virtualbox" if the slot, attachment or network is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the slot, attachment or network is unusable or VirtualBox refuses
  * @example
  *   virtualbox.setNic($vb, "web", 1, "bridged", "eth0");
  */
@@ -606,7 +606,7 @@ export func setNic(h as Host, vm as string, index as int, attachment as string, 
  * @param vm {string} the machine's name or UUID
  * @param name {string} the controller's name, such as `SATA`
  * @param bus {string} `ide`, `sata`, `scsi`, `floppy`, `sas`, `usb`, `pcie` (NVMe) or `virtio`
- * @throws {Error} kind "virtualbox" if the name or bus is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the name or bus is unusable or VirtualBox refuses
  */
 export func addController(h as Host, vm as string, name as string, bus as string) {
     checkVm($vm);
@@ -624,7 +624,7 @@ export func addController(h as Host, vm as string, name as string, bus as string
  * @param port {int} the port, from 0
  * @param device {int} the device on the port, from 0 (IDE has 0 and 1)
  * @param path {string} the disk image (`.vdi`, `.vmdk`, `.vhd`) or a disk's UUID; a file named like one of VBoxManage's keywords (`none`, `emptydrive`, `additions`, `iscsi`, `host:...`) needs a `./`
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func attachDisk(
     h as Host,
@@ -646,7 +646,7 @@ export func attachDisk(
  * @param port {int} the port, from 0
  * @param device {int} the device on the port, from 0
  * @param path {string} the `.iso` file, or `emptydrive` for a drive with no disc; a file named like another VBoxManage keyword (`none`, `additions`, `iscsi`, `host:...`) needs a `./`
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func attachDvd(
     h as Host,
@@ -667,7 +667,7 @@ export func attachDvd(
  * @param controller {string} the controller's name
  * @param port {int} the port
  * @param device {int} the device on the port
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func detach(h as Host, vm as string, controller as string, port as int, device as int) {
     checkVm($vm);
@@ -699,7 +699,7 @@ export func detach(h as Host, vm as string, controller as string, port as int, d
  * @param path {string} the path
  * @param what {string} what it is, for the message
  * @param emptyDrive {bool} whether `emptydrive` is allowed
- * @throws {Error} kind "virtualbox" if it is unusable or a keyword
+ * @throws {VirtualboxError} kind "virtualbox" if it is unusable or a keyword
  */
 func checkMedium(path as string, what as string, emptyDrive as bool) {
     checkPath($path, $what);
@@ -724,7 +724,7 @@ func checkMedium(path as string, what as string, emptyDrive as bool) {
  * @param device {int} the device on the port
  * @param type {string} `hdd` or `dvddrive`
  * @param medium {string} the image, checked by the caller
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 func attach(
     h as Host,
@@ -764,7 +764,7 @@ func attach(
  * @param path {string} the new file, ending in `.vdi`
  * @param sizeMb {int} its size in MiB, 1 to 67108864 (64 TiB)
  * @return {string} the new disk's UUID
- * @throws {Error} kind "virtualbox" if the path or size is unusable or VirtualBox refuses (the file exists)
+ * @throws {VirtualboxError} kind "virtualbox" if the path or size is unusable or VirtualBox refuses (the file exists)
  * @example
  *   virtualbox.createDisk($vb, "/srv/vms/web/web.vdi", 20480);
  */

@@ -16,7 +16,7 @@ def const LIVE_STATES as list of string init ["running", "paused"];
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or VirtualBox refuses (already running, `VBOX_E_INVALID_OBJECT_STATE`)
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or VirtualBox refuses (already running, `VBOX_E_INVALID_OBJECT_STATE`)
  * @example
  *   virtualbox.start($vb, "web");
  */
@@ -30,7 +30,7 @@ export func start(h as Host, vm as string) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param mode {string} `headless` (no window), `gui` (a window) or `separate` (headless, with a window that may be closed)
- * @throws {Error} kind "virtualbox" if the name or mode is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the name or mode is unusable or VirtualBox refuses
  */
 export func startWith(h as Host, vm as string, mode as string) {
     checkVm($vm);
@@ -44,7 +44,7 @@ export func startWith(h as Host, vm as string, mode as string) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param action {string} the action
- * @throws {Error} kind "virtualbox" if the name is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or VirtualBox refuses
  */
 func control(h as Host, vm as string, action as string) {
     checkVm($vm);
@@ -56,7 +56,7 @@ func control(h as Host, vm as string, action as string) {
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or the machine is not running
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or the machine is not running
  */
 export func powerOff(h as Host, vm as string) {
     control($h, $vm, "poweroff");
@@ -68,7 +68,7 @@ export func powerOff(h as Host, vm as string) {
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or the machine is not running
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or the machine is not running
  */
 export func acpiShutdown(h as Host, vm as string) {
     control($h, $vm, "acpipowerbutton");
@@ -79,7 +79,7 @@ export func acpiShutdown(h as Host, vm as string) {
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or the machine is not running
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or the machine is not running
  */
 export func pause(h as Host, vm as string) {
     control($h, $vm, "pause");
@@ -90,7 +90,7 @@ export func pause(h as Host, vm as string) {
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or the machine is not paused
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or the machine is not paused
  */
 export func resume(h as Host, vm as string) {
     control($h, $vm, "resume");
@@ -101,7 +101,7 @@ export func resume(h as Host, vm as string) {
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or the machine is not running
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or the machine is not running
  */
 export func reset(h as Host, vm as string) {
     control($h, $vm, "reset");
@@ -112,7 +112,7 @@ export func reset(h as Host, vm as string) {
  *
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
- * @throws {Error} kind "virtualbox" if the name is unusable or the machine is not running
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or the machine is not running
  */
 export func saveState(h as Host, vm as string) {
     control($h, $vm, "savestate");
@@ -126,7 +126,7 @@ export func saveState(h as Host, vm as string) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @return {list of Forward} the rules
- * @throws {Error} kind "virtualbox" as `info`
+ * @throws {VirtualboxError} kind "virtualbox" as `info`
  */
 export func forwards(h as Host, vm as string) {
     return info($h, $vm).forwards;
@@ -163,7 +163,7 @@ export func forward(nic as int, name as string, hostPort as int, guestPort as in
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param rule {Forward} the rule, from `forward`
- * @throws {Error} kind "virtualbox" if the rule is unusable or VirtualBox refuses (a name or host port in use)
+ * @throws {VirtualboxError} kind "virtualbox" if the rule is unusable or VirtualBox refuses (a name or host port in use)
  */
 export func addForward(h as Host, vm as string, rule as Forward) {
     checkForward($rule);
@@ -180,7 +180,7 @@ export func addForward(h as Host, vm as string, rule as Forward) {
  * @param vm {string} the machine's name or UUID
  * @param nic {int} the NIC, from 1
  * @param name {string} the rule's name
- * @throws {Error} kind "virtualbox" if the name is unusable or VirtualBox refuses (no such rule)
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or VirtualBox refuses (no such rule)
  */
 export func removeForward(h as Host, vm as string, nic as int, name as string) {
     checkRange($nic, 1, 36, "the NIC");
@@ -195,7 +195,7 @@ export func removeForward(h as Host, vm as string, nic as int, name as string) {
  * @param vm {string} the machine's name or UUID
  * @param nic {int} the NIC
  * @param args {list of string} the rule, or `delete` and a name
- * @throws {Error} kind "virtualbox" if VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if VirtualBox refuses
  */
 func natpf(h as Host, vm as string, nic as int, args as list of string) {
     def n as string init convert.toString($nic);
@@ -215,7 +215,7 @@ func natpf(h as Host, vm as string, nic as int, args as list of string) {
  * Refuse a rule VirtualBox could misread.
  *
  * @param rule {Forward} the rule
- * @throws {Error} kind "virtualbox" if a field is unusable
+ * @throws {VirtualboxError} kind "virtualbox" if a field is unusable
  */
 func checkForward(rule as Forward) {
     checkRange($rule.nic, 1, 36, "the NIC");
@@ -235,7 +235,7 @@ func checkForward(rule as Forward) {
  * fields.
  *
  * @param name {string} the name
- * @throws {Error} kind "virtualbox" if it is unusable
+ * @throws {VirtualboxError} kind "virtualbox" if it is unusable
  */
 func checkRuleName(name as string) {
     checkName($name, "the rule name");

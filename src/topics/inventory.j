@@ -120,7 +120,7 @@ export def struct HostInfo {
  *
  * @param h {Host} the host
  * @return {list of Vm} the machines, in VirtualBox's order
- * @throws {Error} kind "virtualbox" if `VBoxManage` fails
+ * @throws {VirtualboxError} kind "virtualbox" if `VBoxManage` fails
  * @example
  *   for (def m in virtualbox.vms($vb)) {
  *       io.printf("%s %s\n", $m.uuid, $m.name);
@@ -135,7 +135,7 @@ export func vms(h as Host) {
  *
  * @param h {Host} the host
  * @return {list of Vm} the machines
- * @throws {Error} kind "virtualbox" if `VBoxManage` fails
+ * @throws {VirtualboxError} kind "virtualbox" if `VBoxManage` fails
  */
 export func runningVms(h as Host) {
     return vmLines(call($h, ["list", "runningvms"], "list runningvms"));
@@ -147,7 +147,7 @@ export func runningVms(h as Host) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @return {bool} whether it is
- * @throws {Error} kind "virtualbox" if the name is unusable or `VBoxManage` fails
+ * @throws {VirtualboxError} kind "virtualbox" if the name is unusable or `VBoxManage` fails
  */
 export func hasVm(h as Host, vm as string) {
     checkVm($vm);
@@ -181,7 +181,7 @@ func vmLines(out as string) {
  *
  * @param h {Host} the host
  * @return {list of OsType} the types
- * @throws {Error} kind "virtualbox" if `VBoxManage` fails
+ * @throws {VirtualboxError} kind "virtualbox" if `VBoxManage` fails
  */
 export func osTypes(h as Host) {
     def out as list of OsType init [];
@@ -205,7 +205,7 @@ export func osTypes(h as Host) {
  *
  * @param h {Host} the host
  * @return {list of Medium} the disks
- * @throws {Error} kind "virtualbox" if `VBoxManage` fails
+ * @throws {VirtualboxError} kind "virtualbox" if `VBoxManage` fails
  */
 export func hdds(h as Host) {
     def out as list of Medium init [];
@@ -231,7 +231,7 @@ export func hdds(h as Host) {
  *
  * @param h {Host} the host
  * @return {list of HostOnlyIf} the interfaces
- * @throws {Error} kind "virtualbox" if `VBoxManage` fails
+ * @throws {VirtualboxError} kind "virtualbox" if `VBoxManage` fails
  */
 export func hostOnlyIfs(h as Host) {
     def out as list of HostOnlyIf init [];
@@ -256,7 +256,7 @@ export func hostOnlyIfs(h as Host) {
  *
  * @param h {Host} the host
  * @return {list of NatNet} the networks
- * @throws {Error} kind "virtualbox" if `VBoxManage` fails
+ * @throws {VirtualboxError} kind "virtualbox" if `VBoxManage` fails
  */
 export func natNets(h as Host) {
     def out as list of NatNet init [];
@@ -281,7 +281,7 @@ export func natNets(h as Host) {
  *
  * @param h {Host} the host
  * @return {HostInfo} the host's description
- * @throws {Error} kind "virtualbox" if `VBoxManage` fails
+ * @throws {VirtualboxError} kind "virtualbox" if `VBoxManage` fails
  */
 export func hostInfo(h as Host) {
     def all as map of string to string init {};

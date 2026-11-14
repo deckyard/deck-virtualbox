@@ -44,7 +44,7 @@ export def struct GuestResult {
  * @param vm {string} the machine's name or UUID
  * @param key {string} the property, such as `/VirtualBox/GuestInfo/OS/Product`
  * @return {string} its value, `""` when it is not set
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func guestProperty(h as Host, vm as string, key as string) {
     checkVm($vm);
@@ -65,7 +65,7 @@ export func guestProperty(h as Host, vm as string, key as string) {
  * @param vm {string} the machine's name or UUID
  * @param key {string} the property
  * @param value {string} its value; use `unsetGuestProperty` to remove it
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func setGuestProperty(h as Host, vm as string, key as string, value as string) {
     checkVm($vm);
@@ -80,7 +80,7 @@ export func setGuestProperty(h as Host, vm as string, key as string, value as st
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param key {string} the property
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func unsetGuestProperty(h as Host, vm as string, key as string) {
     checkVm($vm);
@@ -95,7 +95,7 @@ export func unsetGuestProperty(h as Host, vm as string, key as string) {
  * @param vm {string} the machine's name or UUID
  * @param nic {int} the guest's network interface, from 0 (not the NIC slot, which counts from 1)
  * @return {string} the address, `""` before the guest reports one
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func guestIp(h as Host, vm as string, nic as int) {
     checkRange($nic, 0, 35, "the guest interface");
@@ -115,7 +115,7 @@ export func guestIp(h as Host, vm as string, nic as int) {
  * @param nic {int} the guest's network interface, from 0
  * @param timeoutMs {int} how long to wait, 1 to 86400000
  * @return {string} the address
- * @throws {Error} kind "virtualbox" if an argument is unusable, VirtualBox refuses, or no address comes in time
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable, VirtualBox refuses, or no address comes in time
  * @example
  *   virtualbox.start($vb, "web");
  *   def ip as string init virtualbox.waitForIp($vb, "web", 0, 120000);
@@ -140,7 +140,7 @@ export func waitForIp(h as Host, vm as string, nic as int, timeoutMs as int) {
             $ip = guestIp($polling, $vm, $nic);
         } catch (e) {
             # a poll cut short by the end of the wait ends it the same way
-            if (not strings.contains($e.message, ": no answer after ") or
+            if ($e.kind != "virtualbox" or $e.reason != "timeout" or
                 $polling.config.timeoutMs == $h.config.timeoutMs) {
                 throw $e;
             }
@@ -171,7 +171,7 @@ export func waitForIp(h as Host, vm as string, nic as int, timeoutMs as int) {
  * @param username {string} the guest user
  * @param password {string} the password
  * @return {Credentials} the account
- * @throws {Error} kind "virtualbox" if the user is empty or starts with `-`, or either holds a control character
+ * @throws {VirtualboxError} kind "virtualbox" if the user is empty or starts with `-`, or either holds a control character
  */
 export func credentials(username as string, password as string) {
     checkName($username, "the guest user");
@@ -197,7 +197,7 @@ export func credentials(username as string, password as string) {
  * @param account {Credentials} the guest account, from `credentials`
  * @param argv {list of string} the program, by its absolute path in the guest, and its arguments
  * @return {GuestResult} how it ended and its output
- * @throws {Error} kind "virtualbox" if an argument is unusable, the host is remote, or `VBoxManage` cannot run the program (no Guest Additions, a wrong password, no such program)
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable, the host is remote, or `VBoxManage` cannot run the program (no Guest Additions, a wrong password, no such program)
  * @example
  *   def r as virtualbox.GuestResult init virtualbox.guestRun($vb, "web",
  *       virtualbox.credentials("ada", $password), ["/usr/bin/uptime"]);
@@ -238,7 +238,7 @@ export func guestRun(h as Host, vm as string, account as Credentials, argv as li
  * @param r {os.Result} VBoxManage's result
  * @param what {string} the operation, for the message
  * @return {GuestResult} the outcome
- * @throws {Error} kind "virtualbox" if the exit code is VBoxManage's own failure
+ * @throws {VirtualboxError} kind "virtualbox" if the exit code is VBoxManage's own failure
  */
 func guestOutcome(r as os.Result, what as string) {
     def out as GuestResult init GuestResult{
@@ -273,7 +273,7 @@ func guestOutcome(r as os.Result, what as string) {
  * @param account {Credentials} the guest account
  * @param hostPath {string} the file on the host
  * @param guestPath {string} where it goes in the guest
- * @throws {Error} kind "virtualbox" if an argument is unusable, the host is remote or the copy fails
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable, the host is remote or the copy fails
  */
 export func copyTo(
     h as Host,
@@ -293,7 +293,7 @@ export func copyTo(
  * @param account {Credentials} the guest account
  * @param guestPath {string} the file in the guest
  * @param hostPath {string} where it goes on the host
- * @throws {Error} kind "virtualbox" if an argument is unusable, the host is remote or the copy fails
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable, the host is remote or the copy fails
  */
 export func copyFrom(
     h as Host,
@@ -313,7 +313,7 @@ export func copyFrom(
  * @param verb {string} `copyto` or `copyfrom`
  * @param source {string} the file to copy
  * @param target {string} where it goes
- * @throws {Error} kind "virtualbox" if an argument is unusable, the host is remote or the copy fails
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable, the host is remote or the copy fails
  */
 func guestCopy(
     h as Host,
@@ -358,7 +358,7 @@ func guestArgs(vm as string, verb as string, account as Credentials, file as str
  * touches the disk.
  *
  * @return {string} the directory
- * @throws {Error} kind "virtualbox" if it cannot be made (named pipes need Linux, macOS or another Unix)
+ * @throws {VirtualboxError} kind "virtualbox" if it cannot be made (named pipes need Linux, macOS or another Unix)
  */
 func passwordDir() {
     def dir as string init "";
@@ -438,7 +438,7 @@ func drainPipe(pipe as string) {
  *
  * @param h {Host} the host
  * @param what {string} the call
- * @throws {Error} kind "virtualbox" if the host is reached through a prefix
+ * @throws {VirtualboxError} kind "virtualbox" if the host is reached through a prefix
  */
 func requireLocal(h as Host, what as string) {
     if (len($h.config.prefix) > 0) {
@@ -455,7 +455,7 @@ func requireLocal(h as Host, what as string) {
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @return {list of SharedFolder} the folders
- * @throws {Error} kind "virtualbox" as `info`
+ * @throws {VirtualboxError} kind "virtualbox" as `info`
  */
 export func sharedFolders(h as Host, vm as string) {
     return info($h, $vm).sharedFolders;
@@ -470,7 +470,7 @@ export func sharedFolders(h as Host, vm as string) {
  * @param hostPath {string} the host directory, an absolute path
  * @param readOnly {bool} whether the guest may only read it
  * @param autoMount {bool} whether the Guest Additions mount it at boot
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  * @example
  *   virtualbox.addSharedFolder($vb, "web", "site", "/srv/site", true, true);
  */
@@ -508,7 +508,7 @@ export func addSharedFolder(
  * @param h {Host} the host
  * @param vm {string} the machine's name or UUID
  * @param name {string} the folder's name
- * @throws {Error} kind "virtualbox" if an argument is unusable or VirtualBox refuses
+ * @throws {VirtualboxError} kind "virtualbox" if an argument is unusable or VirtualBox refuses
  */
 export func removeSharedFolder(h as Host, vm as string, name as string) {
     checkVm($vm);

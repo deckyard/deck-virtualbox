@@ -53,8 +53,8 @@ there (`VERR_NO_TRANSLATION`).
 
 ## Errors
 
-Every failure is an `Error` of kind `"virtualbox"`, its message starting with
-`virtualbox: `:
+Every failure is a `virtualbox.VirtualboxError` (kind `"virtualbox"`), its
+message starting with `virtualbox: `:
 
 - an argument the deck refuses before running anything: an empty name, a
   name or path starting with `-`, a control character, a number out of range,
@@ -62,14 +62,17 @@ Every failure is an `Error` of kind `"virtualbox"`, its message starting with
 - `VBoxManage` cannot be started, or runs past its deadline. It then gets
   SIGTERM; during an import, export, clone or snapshot it catches that and
   cancels the operation first, so it gets 5 more seconds, after which the
-  call gives up and says it left `VBoxManage` running, with its pid;
+  call gives up and says it left `VBoxManage` running, with its pid. The
+  error's `reason` is `"timeout"`;
 - `VBoxManage` printed more than 4 Mi characters or 50 000 lines, which no
-  real answer does, so the parsers stay within a few hundred MiB;
+  real answer does, so the parsers stay within a few hundred MiB. This one is
+  a plain `Error` of kind `"limit"`, not a `VirtualboxError`;
 - `VBoxManage` fails. The message carries its first error line, its
   `VBOX_E_*` / `E_*` / `NS_ERROR_*` code and the exit code:
   `virtualbox: startvm web: Could not find a registered machine named 'web'
-  (VBOX_E_OBJECT_NOT_FOUND, exit 1)`. `virtualbox.errorCode(e)` returns the
-  code.
+  (VBOX_E_OBJECT_NOT_FOUND, exit 1)`. The error's `reason` is `"exit"`, `code`
+  holds the code (`virtualbox.errorCode(e)` returns it too) and `exitCode` the
+  exit code.
 
 ```jennifer
 use io;
@@ -77,7 +80,7 @@ use io;
 try {
     virtualbox.start($vb, "web");
 } catch (e) {
-    if (virtualbox.errorCode($e) == "VBOX_E_INVALID_OBJECT_STATE") {
+    if ($e.kind == "virtualbox" and $e.code == "VBOX_E_INVALID_OBJECT_STATE") {
         io.printf("web is already running\n");
     } else {
         io.printf("%s\n", $e.message);

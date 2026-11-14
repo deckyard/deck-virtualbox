@@ -256,10 +256,11 @@ func testAFailureCarriesTheCodeAndTheExitCode() {
             $e.message,
             "virtualbox: showvminfo ghost: Could not find a registered machine named 'ghost' (VBOX_E_OBJECT_NOT_FOUND, exit 1)");
         testing.assertEqual(errorCode($e), "VBOX_E_OBJECT_NOT_FOUND");
+        # a VirtualboxError: the reason, the code and the exit code as fields
+        testing.assertEqual($e.reason, "exit");
+        testing.assertEqual($e.code, "VBOX_E_OBJECT_NOT_FOUND");
+        testing.assertEqual($e.exitCode, 1);
     }
-    testing.assertEqual(
-        errorCode(Error{kind: "runtime", message: "x (VBOX_E_FILE_ERROR, exit 1)"}),
-        "");
 }
 
 func testAFailureWithoutVBoxManageLines() {
@@ -275,6 +276,7 @@ func testAFailureWithoutVBoxManageLines() {
             $e.message,
             "virtualbox: list vms: segmentation fault? here (exit 139)");
         testing.assertEqual(errorCode($e), "");
+        testing.assertEqual($e.exitCode, 139);
     }
     answer($d, "list_vms", "err", "");
     try {
@@ -310,6 +312,8 @@ func testACallPastItsDeadlineIsKilled() {
         missed("slow");
     } catch (e) {
         testing.assertEqual($e.message, "virtualbox: list vms: no answer after 300 ms, stopped");
+        testing.assertEqual($e.reason, "timeout");
+        testing.assertEqual($e.exitCode, 0);
     }
     testing.assertTrue(time.milliseconds(time.sub(time.now(), $started)) < 3000);
 }
@@ -420,6 +424,7 @@ func testOutputBeyondTheCapIsRefused() {
         testing.assertEqual(
             $e.message,
             "virtualbox: list vms: printed more than 4194304 characters");
+        testing.assertEqual($e.kind, "limit");
     }
     answer($d, "list_vms", "out", strings.repeat("\n", 50001));
     try {
@@ -427,6 +432,7 @@ func testOutputBeyondTheCapIsRefused() {
         missed("many lines");
     } catch (e) {
         testing.assertEqual($e.message, "virtualbox: list vms: printed more than 50000 lines");
+        testing.assertEqual($e.kind, "limit");
     }
     answer($d, "list_vms", "out", "");
     answer($d, "list_vms", "err", strings.repeat("y\n", 200000));
