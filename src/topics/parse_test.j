@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - white-box tests for the parse topic. Spliced into
 # virtualbox_test.j via include.
@@ -66,7 +66,7 @@ func testUnescapedUndoesOnlyVBoxManagesEscapes() {
 }
 
 func testParsingALongLineIsLinear() {
-    def big as string init "description=\"" + strings.repeat("abc\\\"", 500000) +
+    def big as string init "description=\"" + strings.replicate("abc\\\"", 500000) +
         "\"\nVMState=\"poweroff\"\n";
     def started as time.Time init time.now();
     def m as map of string to string init pairMap(pairs($big));

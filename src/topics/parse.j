@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - parse: the two output forms VBoxManage has. `--machinereadable`
 # prints `key="value"` lines; `list` prints blocks of `Key:   value` lines
@@ -42,11 +42,11 @@ func pairs(text as string) {
     for (def whole in strings.split($text, "\n")) {
         def line as string init $whole;
         if (strings.endsWith($line, "\r")) {
-            $line = strings.substring($line, 0, len($line) - 1);
+            $line = $line[..len($line) - 1];
         }
         if ($inValue) {
             if (closes($line, $raw)) {
-                $parts[] = strings.substring($line, 0, len($line) - 1);
+                $parts[] = $line[..len($line) - 1];
                 $out[] = Pair{key: $key, value: valueOf(strings.join($parts, "\n"), $raw)};
                 $parts = [];
                 $inValue = false;
@@ -61,19 +61,19 @@ func pairs(text as string) {
             if ($end < 0) {
                 continue;
             }
-            $key = unescaped(strings.substring($line, 1, $end));
-            $rest = strings.substring($line, $end + 1);
+            $key = unescaped($line[1..$end]);
+            $rest = $line[$end + 1..];
             if (not strings.startsWith($rest, "=")) {
                 continue;
             }
-            $rest = strings.substring($rest, 1);
+            $rest = $rest[1..];
         } else {
             def k as int init strings.indexOf($line, "=");
             if ($k <= 0) {
                 continue;
             }
-            $key = strings.substring($line, 0, $k);
-            $rest = strings.substring($line, $k + 1);
+            $key = $line[..$k];
+            $rest = $line[$k + 1..];
         }
         if ($key == "") {
             continue;
@@ -83,12 +83,9 @@ func pairs(text as string) {
             continue;
         }
         $raw = unescapedKey($key);
-        def body as string init strings.substring($rest, 1);
+        def body as string init $rest[1..];
         if (closes($body, $raw)) {
-            $out[] = Pair{
-                key: $key,
-                value: valueOf(strings.substring($body, 0, len($body) - 1), $raw)
-            };
+            $out[] = Pair{key: $key, value: valueOf($body[..len($body) - 1], $raw)};
         } else {
             $parts = [$body];
             $inValue = true;
@@ -155,7 +152,7 @@ func closingQuote(line as string, from as int) {
 func backslashesBefore(s as string, at as int) {
     def n as int init 0;
     def i as int init $at - 1;
-    while ($i >= 0 and strings.substring($s, $i, $i + 1) == "\\") {
+    while ($i >= 0 and $s[$i..$i + 1] == "\\") {
         $n = $n + 1;
         $i = $i - 1;
     }
@@ -238,9 +235,9 @@ func blocks(text as string) {
         if ($k <= 0) {
             continue;
         }
-        def key as string init strings.trim(strings.substring($bare, 0, $k));
+        def key as string init strings.trim($bare[..$k]);
         if (not maps.has($current, $key)) {
-            $current[$key] = strings.trim(strings.substring($bare, $k + 1));
+            $current[$key] = strings.trim($bare[$k + 1..]);
         }
     }
     if (len($current) > 0) {

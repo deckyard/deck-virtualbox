@@ -103,7 +103,7 @@ for (def s in virtualbox.snapshots($vb, "web")) {
     if ($s.current) {
         $mark = " (current)";
     }
-    io.printf("%s%s%s\n", strings.repeat("  ", $s.depth), $s.name, $mark);
+    io.printf("%s%s%s\n", strings.replicate("  ", $s.depth), $s.name, $mark);
 }
 virtualbox.restoreSnapshot($vb, "web", "before-upgrade");
 ```

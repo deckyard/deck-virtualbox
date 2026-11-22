@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - machine: one machine's details, creating, registering and
 # deleting machines, their settings, NICs, storage controllers and disks.
@@ -287,7 +287,7 @@ func forwardsFrom(lines as list of Pair) {
     def nic as int init 0;
     for (def p in $lines) {
         if (strings.startsWith($p.key, "nic") and regex.matches('^nic[0-9]{1,2}$', $p.key)) {
-            $nic = convert.toInt(strings.substring($p.key, 3));
+            $nic = convert.toInt($p.key[3..]);
             continue;
         }
         if (not strings.startsWith($p.key, "Forwarding(") or

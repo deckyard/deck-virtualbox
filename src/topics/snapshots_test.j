@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - white-box tests for the snapshots topic. Spliced into
 # virtualbox_test.j via include.
@@ -69,7 +69,8 @@ func testClones() {
 func testClonesUseTheLongDeadline() {
     def d as string init fakeDir();
     defer fs.removeAll($d);
-    answer($d, "clonevm", "sleep", "1");
+    # 300 ms past the 200 ms deadlines below
+    answer($d, "clonevm", "sleep", "0.5");
     def h as Host init fakeHost();
     $h.config = withTimeout($h.config, 200);
     clone($h, "template", "web2");

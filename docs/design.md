@@ -115,7 +115,8 @@ Not in scope:
 
 ## Dependencies on the interpreter
 
-- Floor `jennifer >=0.26.0`; the default binary (capability `exec`).
+- Floor `jennifer >=0.27.0`; the default binary (capability `exec`). The
+  tests use `strings.replicate`, new in 0.27.0.
 - `os.spawn` and `os.kill`, `fs.mkfifo` and private temporary directories,
   tasks for the password writer.
 - Thrown structs classified by kind (`jennifer` `6abf345`, the error-struct

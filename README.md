@@ -39,7 +39,7 @@ io.printf("up at %s\n", virtualbox.waitForIp($vb, "build-1", 0, 180000));
 
 ## Requirements
 
-Jennifer 0.26.0 or newer, the default `jennifer` binary (the deck runs
+Jennifer 0.27.0 or newer, the default `jennifer` binary (the deck runs
 programs, capability `exec`; `jennifer-tiny` cannot), and VirtualBox 7.0 or
 newer with `VBoxManage` on `PATH`, here or on the host a prefix reaches.
 Commands and copies in the guest need the Guest Additions.

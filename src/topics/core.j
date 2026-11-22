@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - core: the configuration, the host handle, the argument checks,
 # running VBoxManage with a deadline, and its errors. Spliced into
@@ -149,7 +149,7 @@ func shown(s as string) {
 func cleaned(s as string, most as int) {
     def t as string init $s;
     if (len($t) > $most) {
-        $t = strings.substring($t, 0, $most) + "...";
+        $t = $t[..$most] + "...";
     }
     return regex.replace(UNSHOWN, $t, "?");
 }
@@ -621,7 +621,7 @@ func failed(what as string, r as os.Result) {
 func explain(stderr as string) {
     def text as string init $stderr;
     if (len($text) > MAX_ERROR_OUTPUT) {
-        $text = strings.substring($text, 0, MAX_ERROR_OUTPUT);
+        $text = $text[..MAX_ERROR_OUTPUT];
     }
     def message as string init "";
     def code as string init "";

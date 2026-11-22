@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - snapshots: snapshots, clones, and OVA / OVF import and export.
 # Spliced into virtualbox.j via include.
@@ -32,7 +32,7 @@ export def struct Snapshot {
  * @throws {VirtualboxError} kind "virtualbox" as `info`
  * @example
  *   for (def s in virtualbox.snapshots($vb, "web")) {
- *       io.printf("%s%s\n", strings.repeat("  ", $s.depth), $s.name);
+ *       io.printf("%s%s\n", strings.replicate("  ", $s.depth), $s.name);
  *   }
  */
 export func snapshots(h as Host, vm as string) {

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - guest: guest properties and the guest's IP, commands and file
 # copies in the guest, and shared folders. Spliced into virtualbox.j via
@@ -52,7 +52,7 @@ export func guestProperty(h as Host, vm as string, key as string) {
     def out as string init call($h, ["guestproperty", "get", $vm, $key], "guestproperty get");
     for (def line in strings.split($out, "\n")) {
         if (strings.startsWith($line, "Value: ")) {
-            return strings.trimRight(strings.substring($line, 7));
+            return strings.trimRight($line[7..]);
         }
     }
     return "";

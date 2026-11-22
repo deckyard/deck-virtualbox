@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - white-box tests for the core topic, and the helpers every
 # topic's tests share. Spliced into virtualbox_test.j via include.
@@ -297,7 +297,7 @@ func testExplainPrefersTheFirstErrorLine() {
             "VBoxManage: error: Context: \"LockMachine\"\n");
     testing.assertEqual($e[0], "The machine is locked");
     testing.assertEqual($e[1], "E_ACCESSDENIED");
-    testing.assertEqual(len(explain(strings.repeat("x", 500))[0]), 303);
+    testing.assertEqual(len(explain(strings.replicate("x", 500))[0]), 303);
 }
 
 func testACallPastItsDeadlineIsKilled() {
@@ -335,7 +335,7 @@ func testRunPassesItsArgumentsAsTheyAre() {
 }
 
 func testChecksRefuseWhatVBoxManageWouldMisread() {
-    for (def bad in ["", "-x", "--register", "a\nb", "tab\there", strings.repeat("n", 256)]) {
+    for (def bad in ["", "-x", "--register", "a\nb", "tab\there", strings.replicate("n", 256)]) {
         try {
             checkVm($bad);
             missed($bad);
@@ -354,7 +354,7 @@ func testChecksRefuseWhatVBoxManageWouldMisread() {
             "virtualbox: the disk must not start with -, got \"-rf\" (write ./-rf)");
     }
     try {
-        checkPath(strings.repeat("p", 4097), "the disk");
+        checkPath(strings.replicate("p", 4097), "the disk");
         missed("long path");
     } catch (e) {
         testing.assertContains($e.message, "longer than 4096 characters");
@@ -370,7 +370,7 @@ func testChecksRefuseWhatVBoxManageWouldMisread() {
 func testShownCutsAndCleans() {
     testing.assertEqual(shown("a\u0001b"), "\"a?b\"");
     testing.assertEqual(shown("a\u0085b\u202Ec\u2066d"), "\"a?b?c?d\"");
-    testing.assertEqual(len(shown(strings.repeat("x", 300))), 205);
+    testing.assertEqual(len(shown(strings.replicate("x", 300))), 205);
     testing.assertEqual(shellQuoted("a'b"), "'a'\\''b'");
 }
 
@@ -416,7 +416,7 @@ func testNsErrorCodes() {
 func testOutputBeyondTheCapIsRefused() {
     def d as string init fakeDir();
     defer fs.removeAll($d);
-    answer($d, "list_vms", "out", strings.repeat("x", 4194305));
+    answer($d, "list_vms", "out", strings.replicate("x", 4194305));
     try {
         vms(fakeHost());
         missed("big output");
@@ -426,7 +426,7 @@ func testOutputBeyondTheCapIsRefused() {
             "virtualbox: list vms: printed more than 4194304 characters");
         testing.assertEqual($e.kind, "limit");
     }
-    answer($d, "list_vms", "out", strings.repeat("\n", 50001));
+    answer($d, "list_vms", "out", strings.replicate("\n", 50001));
     try {
         vms(fakeHost());
         missed("many lines");
@@ -435,7 +435,7 @@ func testOutputBeyondTheCapIsRefused() {
         testing.assertEqual($e.kind, "limit");
     }
     answer($d, "list_vms", "out", "");
-    answer($d, "list_vms", "err", strings.repeat("y\n", 200000));
+    answer($d, "list_vms", "err", strings.replicate("y\n", 200000));
     answer($d, "list_vms", "exit", "1");
     try {
         vms(fakeHost());

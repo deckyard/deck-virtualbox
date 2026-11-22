@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: LGPL-3.0-only
 # SPDX-FileCopyrightText: Copyright (C) 2026 mplx <mplx@jennifer-lang.dev>
-# pragma-jennifer-version: >=0.26.0
+# pragma-jennifer-version: >=0.27.0
 
 # virtualbox - white-box tests for the guest topic. Spliced into
 # virtualbox_test.j via include.
@@ -101,18 +101,16 @@ func testGuestRunPassesThePasswordThroughAPipe() {
     testing.assertEqual($r.stdout, "up 3 days\n");
     testing.assertEqual($r.stderr, "warning: x\n");
     def argv as list of string init strings.split(lastCall($d), "|");
-    testing.assertEqual(
-        strings.join(lists.slice($argv, 0, 5), "|"),
-        "guestcontrol|web|run|--username|ada");
+    testing.assertEqual(strings.join($argv[..5], "|"), "guestcontrol|web|run|--username|ada");
     testing.assertEqual($argv[5], "--passwordfile");
     testing.assertEqual(
-        strings.join(lists.slice($argv, 7), "|"),
+        strings.join($argv[7..], "|"),
         "--wait-stdout|--wait-stderr|--|/usr/bin/uptime|-p");
     testing.assertFalse(strings.contains(lastCall($d), "s3cret"));
     testing.assertEqual(fs.readString($d + "/password.seen"), "s3cret pw");
     testing.assertEqual(strings.trim(fs.readString($d + "/password.mode")), "600");
     testing.assertTrue(strings.endsWith($argv[6], "/password"));
-    testing.assertFalse(fs.exists(strings.substring($argv[6], 0, len($argv[6]) - 9)));
+    testing.assertFalse(fs.exists($argv[6][..len($argv[6]) - 9]));
 }
 
 func testGuestRunGivesTheProgramsOwnExitCode() {
@@ -215,14 +213,12 @@ func testCopies() {
         "/srv/site/index.html",
         "/var/www/index.html");
     def sent as list of string init strings.split(lastCall($d), "|");
-    testing.assertEqual(strings.join(lists.slice($sent, 0, 3), "|"), "guestcontrol|web|copyto");
-    testing.assertEqual(
-        strings.join(lists.slice($sent, 7), "|"),
-        "/srv/site/index.html|/var/www/index.html");
+    testing.assertEqual(strings.join($sent[..3], "|"), "guestcontrol|web|copyto");
+    testing.assertEqual(strings.join($sent[7..], "|"), "/srv/site/index.html|/var/www/index.html");
     copyFrom(fakeHost(), "web", credentials("ada", "pw"), "/var/log/syslog", "/tmp/syslog");
     def back as list of string init strings.split(lastCall($d), "|");
     testing.assertEqual($back[2], "copyfrom");
-    testing.assertEqual(strings.join(lists.slice($back, 7), "|"), "/var/log/syslog|/tmp/syslog");
+    testing.assertEqual(strings.join($back[7..], "|"), "/var/log/syslog|/tmp/syslog");
     testing.assertFalse(fs.exists($back[6]));
     try {
         copyFrom(fakeHost(), "web", credentials("ada", "pw"), "/var/log/syslog", "-x");
@@ -242,7 +238,7 @@ func testSharedFolders() {
     removeSharedFolder(fakeHost(), "web", "site");
     def all as list of string init calls($d);
     testing.assertEqual(
-        strings.join(lists.slice($all, 1), ";"),
+        strings.join($all[1..], ";"),
         "sharedfolder|add|web|--name|site|--hostpath|/srv/site|--readonly|--automount;" +
             "sharedfolder|add|web|--name|data|--hostpath|/srv/data;" +
             "sharedfolder|remove|web|--name|site");
@@ -268,6 +264,6 @@ func testAPasswordPipeNobodyReadsDoesNotHang() {
     }
     testing.assertTrue(time.milliseconds(time.sub(time.now(), $started)) < 2000);
     def argv as list of string init strings.split(lastCall($d), "|");
-    testing.assertFalse(fs.exists(strings.substring($argv[6], 0, len($argv[6]) - 9)));
+    testing.assertFalse(fs.exists($argv[6][..len($argv[6]) - 9]));
     testing.assertFalse(fs.exists($d + "/password.seen"));
 }
