@@ -5,7 +5,7 @@
 
 ## Scope
 
-`@deckyard/virtualbox` drives Oracle VirtualBox 7 through the `VBoxManage`
+`@deckyard/virtualbox` drives Oracle™ VirtualBox™ 7 through the `VBoxManage`
 command-line tool that every VirtualBox install carries: inventories (VMs,
 running VMs, OS types, disks, host-only interfaces, NAT networks, host
 information), VM details, create, register, unregister and delete, CPU,
@@ -20,7 +20,7 @@ Not in scope:
   deck. Capabilities are per deck, and one deck with both backends would make
   every consumer grant both `exec` and `net`.
 - **VirtualBox before 7.** `open` refuses an older major version.
-- **Windows hosts over a prefix.** Their shells do not take POSIX quoting.
+- **Windows™ hosts over a prefix.** Their shells do not take POSIX quoting.
 - **`jennifer-tiny`.** It has no `exec` capability.
 
 ## Decisions
@@ -39,7 +39,7 @@ Not in scope:
   refuses a major below `MIN_MAJOR` (7).
 - **Machine-readable output.** `--machinereadable` output (`key="value"`
   lines with indexed keys such as `SATA-0-0`, `natnet1`, `Forwarding(0)`) is
-  parsed into typed structs. VBoxManage escapes only `\"` and `\\` and writes
+  parsed into typed structs. VBoxManage™ escapes only `\"` and `\\` and writes
   newlines raw, so a quoted value runs to an unescaped `"` at a line end;
   snapshot keys are printed unescaped and are taken raw. Port forwards are
   read in order under the NIC they follow. `list --long` blocks feed the

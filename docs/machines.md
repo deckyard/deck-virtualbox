@@ -45,7 +45,7 @@ virtualbox.attachDvd($vb, $name, "SATA", 1, 0, "/srv/iso/ubuntu-24.04-live-serve
 
 The OS type is an `id` from `osTypes` (`Ubuntu_64`, `Debian_64`,
 `Windows11_64`). Settings change only while the machine is powered off;
-VirtualBox refuses otherwise: the machine is locked by its running session
+VirtualBox™ refuses otherwise: the machine is locked by its running session
 (`VBOX_E_INVALID_OBJECT_STATE`).
 
 A NIC is `nat` (the default, outbound only), `bridged` to a host interface,

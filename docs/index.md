@@ -3,7 +3,7 @@
 
 # @deckyard/virtualbox
 
-Oracle VirtualBox 7 from a Jennifer program, through `VBoxManage`, the
+Oracle™ VirtualBox™ 7 from a Jennifer program, through `VBoxManage`, the
 command line every VirtualBox install has. The deck covers what scripts that
 build and run test machines do by hand:
 
@@ -44,11 +44,11 @@ io.printf("VirtualBox %s\n", $vb.version);
 
 A machine is named by its name or its UUID. The deck needs the `exec`
 capability, so it runs on the default `jennifer` binary, not
-`jennifer-tiny`, and a Linux, macOS or other Unix host: it starts
+`jennifer-tiny`, and a Linux™, macOS™ or other Unix host: it starts
 `VBoxManage` through `env LC_ALL=C.UTF-8`, since VirtualBox 7 translates its
 output under some locales and the deck reads the English labels, and it
 passes a guest password through a named pipe. A host without the `C.UTF-8`
-locale still runs every call, but VBoxManage refuses arguments outside ASCII
+locale still runs every call, but VBoxManage™ refuses arguments outside ASCII
 there (`VERR_NO_TRANSLATION`).
 
 ## Errors
@@ -87,3 +87,11 @@ try {
     }
 }
 ```
+
+## Trademarks
+
+Oracle™ and VirtualBox™ are trademarks of Oracle Corporation and/or its
+affiliates. VBoxManage™ and other product and company names may be
+trademarks of their respective owners. They are used only to identify the
+products this deck works with. This deck is an independent project, not
+affiliated with, sponsored or endorsed by Oracle Corporation.

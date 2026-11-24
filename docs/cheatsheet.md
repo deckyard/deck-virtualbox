@@ -21,7 +21,7 @@ an `h` a `Host`, a `vm` a machine's name or UUID.
 |---|---|---|
 | `DEFAULT_TIMEOUT_MS` | `60000` | how long an ordinary call may run |
 | `DEFAULT_LONG_TIMEOUT_MS` | `3600000` | how long an import, export, clone or snapshot may run |
-| `MIN_MAJOR` | `7` | the oldest VirtualBox major version `open` accepts |
+| `MIN_MAJOR` | `7` | the oldest VirtualBox™ major version `open` accepts |
 
 ## Connecting
 
@@ -65,7 +65,7 @@ an `h` a `Host`, a `vm` a machine's name or UUID.
 | `virtualbox.setFirmware(h, vm, firmware)` | `null` | `bios`, `efi`, `efi32`, `efi64` |
 | `virtualbox.setNic(h, vm, index, attachment, network)` | `null` | attach NIC 1 to 36: `nat`, `bridged`, `hostonly`, `intnet`, `natnetwork`, `null`, `none` |
 | `virtualbox.addController(h, vm, name, bus)` | `null` | a storage controller: `ide`, `sata`, `scsi`, `floppy`, `sas`, `usb`, `pcie`, `virtio` |
-| `virtualbox.attachDisk(h, vm, controller, port, device, path)` | `null` | a disk image on a port; VBoxManage's medium keywords (`none`, `host:...`) are refused |
+| `virtualbox.attachDisk(h, vm, controller, port, device, path)` | `null` | a disk image on a port; VBoxManage™'s medium keywords (`none`, `host:...`) are refused |
 | `virtualbox.attachDvd(h, vm, controller, port, device, path)` | `null` | a DVD drive with an `.iso`, or `emptydrive` |
 | `virtualbox.detach(h, vm, controller, port, device)` | `null` | empty a port |
 | `virtualbox.createDisk(h, path, sizeMb)` | `string` | a dynamically growing `.vdi`; its UUID |

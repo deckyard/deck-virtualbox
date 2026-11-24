@@ -83,7 +83,7 @@ virtualbox.addSharedFolder($vb, "web", "site", "/srv/site", true, true);
 ```
 
 shares `/srv/site` read-only as `site`, mounted by the Guest Additions at
-boot (on Linux under `/media/sf_site`). `sharedFolders` lists them with a
+boot (on Linux™ under `/media/sf_site`). `sharedFolders` lists them with a
 `scope`: `machine` for the machine's own, `transient` for those added to a
 running machine by other tools, `global` for those every machine sees.
 `removeSharedFolder` stops sharing one of the machine's own.

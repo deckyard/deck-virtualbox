@@ -17,7 +17,7 @@ remote user's login shell, so the deck quotes each of them for POSIX `sh`:
 a machine named `it's mine; rm -rf /` stays one argument. That holds when the
 login shell is sh, bash, dash, ksh or zsh. fish reads `\` inside single
 quotes and csh `!`, so the deck refuses any argument holding either over a
-prefix; a Windows host's cmd or PowerShell does not take `sh` quoting at all
+prefix; a Windows™ host's cmd or PowerShell™ does not take `sh` quoting at all
 and is not supported. Use key authentication (`BatchMode=yes` makes a
 missing key fail at once instead of waiting for a password). Paths are paths
 on the remote host.
@@ -29,7 +29,7 @@ script that runs `sudo VBoxManage "$@"` instead.
 
 A deadline ends the local `ssh`. sshd sends the remote command no signal
 for it, so `VBoxManage` on the other side runs on until it next writes, and
-an operation it started inside VirtualBox (a clone, an import) finishes
+an operation it started inside VirtualBox™ (a clone, an import) finishes
 regardless: check the machine's state before trying again. The calls that
 need a guest password (`guestRun`, `copyTo`, `copyFrom`) are refused over a
 prefix.
