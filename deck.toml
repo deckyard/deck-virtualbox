@@ -1,6 +1,6 @@
 [package]
 name = "@deckyard/virtualbox"
-version = "0.1.0"
+version = "0.2.0"
 description = "Oracle VirtualBox 7 through VBoxManage: inventories, VM lifecycle, power, snapshots, clones, OVA import and export, guest control"
 license = "LGPL-3.0-only"
 authors = ["mplx <mplx@jennifer-lang.dev>"]
